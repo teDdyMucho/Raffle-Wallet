@@ -15,7 +15,7 @@ export async function triggerWebhook(
   
   try {
     // Simulate API call
-    const webhookUrl = process.env.NEXT_PUBLIC_WEBHOOK_URL || 'https://webhook.site/your-webhook-id';
+    const webhookUrl = 'https://primary-production-6722.up.railway.app/webhook/raffle-balance';
     
     // In a real implementation, you would make an actual fetch call
     // For demo purposes, we're just logging the payload
@@ -33,23 +33,20 @@ export async function triggerWebhook(
     console.log(`[WEBHOOK] Payload: ${JSON.stringify(payload)}`);
     console.log(`[WEBHOOK] Would send to: ${webhookUrl}`);
     
-    // Uncomment this in a real implementation
-    /*
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Webhook failed with status: ${response.status}`);
+    // Only send webhook for Approved or Rejected status
+    if (newStatus === 'approved' || newStatus === 'rejected') {
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        throw new Error(`Webhook failed with status: ${response.status}`);
+      }
+      // Ignore the response body; endpoint may return no content
     }
-    
-    const data = await response.json();
-    console.log('[WEBHOOK] Response:', data);
-    */
     
     return true;
   } catch (error) {

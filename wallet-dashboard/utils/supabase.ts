@@ -82,16 +82,74 @@ export async function fetchTransactions(): Promise<WalletTransaction[]> {
 
 export async function updateTransactionStatus(id: number, status: 'approved' | 'pending' | 'rejected'): Promise<WalletTransaction | null> {
   try {
-    const { data, error } = await supabase
-      .from(TABLE)
-      .update({ status })
-      .eq('id', id)
-      .select('*')
-      .single();
-    if (error) throw error;
+    if (status === 'rejected') {
+      // Fetch transaction to check created_at within 24 hours
+      const { data: existing, error: fetchErr } = await supabase
+        .from(TABLE)
+        .select('*')
+        .eq('id', id)
+        .single();
+      if (fetchErr) throw fetchErr;
 
-    if (data) await triggerWebhook(data as WalletTransaction, status);
-    return (data as WalletTransaction) ?? null;
+      const existingRow = existing as any;
+      const createdAt = new Date(existingRow?.created_at);
+      const now = new Date();
+      const within24h = now.getTime() - createdAt.getTime() <= 24 * 60 * 60 * 1000;
+      if (!within24h) {
+        throw new Error('Reject window expired (24 hours).');
+      }
+
+      const { data: updated, error: updErr } = await supabase
+        .from(TABLE)
+        .update({ status: 'rejected' })
+        .eq('id', id)
+        .select('*')
+        .single();
+      if (updErr) {
+        const msg = (updErr as any)?.message || '';
+        // If direct approved->rejected is blocked by a trigger, try a two-step transition: approved -> pending -> rejected
+        const transitionBlocked = /cannot\s+change\s+status|status\s+transition|not\s+allowed/i.test(msg);
+        if (transitionBlocked) {
+          // Step 1: move to pending
+          const { data: toPending, error: pendErr } = await supabase
+            .from(TABLE)
+            .update({ status: 'pending' })
+            .eq('id', id)
+            .select('*')
+            .single();
+          if (pendErr) {
+            throw updErr; // rethrow original if we can't move to pending
+          }
+          // Step 2: move to rejected (status only)
+          const { data: toRejected, error: rejErr } = await supabase
+            .from(TABLE)
+            .update({ status: 'rejected' })
+            .eq('id', id)
+            .select('*')
+            .single();
+          if (rejErr) {
+            throw rejErr;
+          }
+          if (toRejected) await triggerWebhook(toRejected as WalletTransaction, 'rejected');
+          return (toRejected as WalletTransaction) ?? null;
+        }
+        throw updErr;
+      }
+
+      if (updated) await triggerWebhook(updated as WalletTransaction, 'rejected');
+      return (updated as WalletTransaction) ?? null;
+    } else {
+      const { data, error } = await supabase
+        .from(TABLE)
+        .update({ status })
+        .eq('id', id)
+        .select('*')
+        .single();
+      if (error) throw error;
+
+      if (data) await triggerWebhook(data as WalletTransaction, status);
+      return (data as WalletTransaction) ?? null;
+    }
   } catch (error) {
     console.error('[Supabase] updateTransactionStatus failed:', error);
     throw error;

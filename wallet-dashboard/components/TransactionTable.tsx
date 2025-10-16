@@ -56,6 +56,9 @@ const TransactionTable: FC<TransactionTableProps> = ({ transactions, isLoading, 
     const isApproved = t.status === 'approved';
     const isPending = t.status === 'pending';
     const isRejected = t.status === 'rejected';
+    const createdAt = new Date(t.created_at);
+    const isOlderThan24h = Date.now() - createdAt.getTime() > 24 * 60 * 60 * 1000;
+    const canReject = !isRejected && !isOlderThan24h; // allow reject for approved or pending within 24h
 
     return (
       <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-xl border border-slate-200 dark:border-slate-600">
@@ -76,10 +79,17 @@ const TransactionTable: FC<TransactionTableProps> = ({ transactions, isLoading, 
           Pending
         </button>
         <button
-          className={`${baseSeg} ${isRejected ? activeRejected : inactive}`}
-          onClick={() => !isRejected && onStatusUpdate(t.id, 'rejected')}
+          className={`${baseSeg} ${isRejected ? activeRejected : inactive} ${!canReject && !isRejected ? 'opacity-50 cursor-not-allowed' : ''}`}
+          onClick={() => !isRejected && canReject && onStatusUpdate(t.id, 'rejected')}
           aria-pressed={isRejected}
-          title="Set status to Rejected"
+          disabled={!canReject && !isRejected}
+          title={
+            isRejected
+              ? 'Already rejected'
+              : isOlderThan24h
+              ? 'Reject is only allowed within 24 hours of the request time'
+              : 'Set status to Rejected'
+          }
         >
           Reject
         </button>

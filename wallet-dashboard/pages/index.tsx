@@ -18,6 +18,7 @@ import AnalyticsSection from '../components/AnalyticsSection';
 import UserWalletCard from '../components/UserWalletCard';
 
 export default function Home() {
+  const [baseTransactions, setBaseTransactions] = useState<WalletTransaction[]>([]);
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [filteredTransactions, setFilteredTransactions] = useState<WalletTransaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,30 +29,37 @@ export default function Home() {
   const [approvedThisMonth, setApprovedThisMonth] = useState(0);
   const [pendingRequests, setPendingRequests] = useState(0);
   const [topReferrer, setTopReferrer] = useState<{ referral_code: string; total_amount: number } | null>(null);
+  const [overrides, setOverrides] = useState<Record<number, Partial<WalletTransaction>>>({});
 
   // Mock user for demo purposes (replace with auth if needed)
   const currentUser = { id: 'user123', name: 'John Doe' };
+
+  // Apply overrides to rows
+  const withOverrides = (rows: WalletTransaction[]) => rows.map((r) => (overrides[r.id] ? { ...r, ...overrides[r.id] } : r));
+
+  // Compute dashboard metrics from current (possibly overridden) transactions
+  const computeMetrics = (rows: WalletTransaction[]) => {
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const approvedRows = rows.filter((t) => t.status === 'approved');
+    const total = approvedRows.reduce((sum, t) => sum + t.amount_cents, 0);
+    setTotalBalance(total);
+    const approvedThisMonthTotal = approvedRows.filter((t) => new Date(t.created_at) >= firstDayOfMonth).reduce((sum, t) => sum + t.amount_cents, 0);
+    setApprovedThisMonth(approvedThisMonthTotal);
+    const pendingCount = rows.filter((t) => t.status === 'pending').length;
+    setPendingRequests(pendingCount);
+  };
 
   // Centralized loader we can call from Refresh button
   const loadData = async () => {
     try {
       setIsLoading(true);
       const data = await fetchTransactions();
-      setTransactions(data);
-      setFilteredTransactions(data);
-
-      const total = await getTotalBalance();
-      setTotalBalance(total);
-
-      const now = new Date();
-      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const approvedThisMonthTotal = data
-        .filter((t) => t.status === 'approved' && new Date(t.created_at) >= firstDayOfMonth)
-        .reduce((sum, t) => sum + t.amount_cents, 0);
-      setApprovedThisMonth(approvedThisMonthTotal);
-
-      const pendingCount = data.filter((t) => t.status === 'pending').length;
-      setPendingRequests(pendingCount);
+      setBaseTransactions(data);
+      const merged = withOverrides(data);
+      setTransactions(merged);
+      setFilteredTransactions(merged);
+      computeMetrics(merged);
 
       const topRef = await getTopReferrer();
       setTopReferrer(topRef);
@@ -68,21 +76,28 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Realtime subscription
+  // Re-derive transactions and metrics when baseTransactions or overrides change
+  useEffect(() => {
+    const merged = withOverrides(baseTransactions);
+    setTransactions(merged);
+    computeMetrics(merged);
+  }, [baseTransactions, overrides]);
+
+  // Realtime subscription (maintain baseTransactions; overrides applied in separate effect)
   useEffect(() => {
     const channel = supabase
       .channel('realtime:user_wallet')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: TABLE }, (payload: any) => {
         const row = payload.new as WalletTransaction;
-        setTransactions((prev) => [row, ...prev]);
+        setBaseTransactions((prev) => [row, ...prev]);
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: TABLE }, (payload: any) => {
         const row = payload.new as WalletTransaction;
-        setTransactions((prev) => prev.map((t) => (t.id === row.id ? row : t)));
+        setBaseTransactions((prev) => prev.map((t) => (t.id === row.id ? row : t)));
       })
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: TABLE }, (payload: any) => {
         const row = payload.old as WalletTransaction;
-        setTransactions((prev) => prev.filter((t) => t.id !== (row?.id as any)));
+        setBaseTransactions((prev) => prev.filter((t) => t.id !== (row?.id as any)));
       })
       .subscribe();
 
@@ -91,7 +106,7 @@ export default function Home() {
     };
   }, []);
 
-  // Filters
+  // Filters (apply to already-merged transactions)
   useEffect(() => {
     let filtered = [...transactions];
 
@@ -118,10 +133,31 @@ export default function Home() {
 
   // Approve / Reject / Pending
   const handleStatusUpdate = async (id: number, newStatus: 'approved' | 'pending' | 'rejected') => {
+    const tx = baseTransactions.find((t) => t.id === id);
+    const within24h = tx ? Date.now() - new Date(tx.created_at).getTime() <= 24 * 60 * 60 * 1000 : false;
+
+    if (newStatus === 'rejected' && within24h) {
+      setOverrides((prev) => ({ ...prev, [id]: { status: 'rejected', amount_cents: 0 } }));
+      try {
+        const updated = await updateTransactionStatus(id, newStatus);
+        if (updated) {
+          setBaseTransactions((prev) => prev.map((t) => (t.id === id ? updated : t)));
+          setOverrides((prev) => {
+            const next = { ...prev } as Record<number, Partial<WalletTransaction>>;
+            delete next[id];
+            return next;
+          });
+        }
+      } catch (error) {
+        console.error('Error updating transaction status:', error);
+      }
+      return;
+    }
+
     try {
       const updated = await updateTransactionStatus(id, newStatus);
       if (updated) {
-        setTransactions((prev) => prev.map((t) => (t.id === id ? updated : t)));
+        setBaseTransactions((prev) => prev.map((t) => (t.id === id ? updated : t)));
       }
     } catch (error) {
       console.error('Error updating transaction status:', error);
