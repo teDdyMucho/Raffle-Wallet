@@ -49,17 +49,22 @@ const AnalyticsSection: FC<AnalyticsSectionProps> = ({ transactions }) => {
   }, [transactions]);
 
   return (
-    <div className="modern-card p-6">
-      <div className="flex items-center justify-between mb-4">
+    <div className="modern-card p-8 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-red-500/10 to-transparent rounded-full blur-2xl"></div>
+      
+      <div className="flex items-center justify-between mb-8 relative z-10">
         <div>
-          <h3 className="text-xl font-bold text-slate-800">Analytics</h3>
-          <p className="text-slate-500 text-sm">Trends and top performers</p>
+          <h3 className="text-3xl font-black text-black dark:text-white mb-2 bg-gradient-to-r from-black via-red-600 to-black dark:from-white dark:via-red-400 dark:to-white bg-clip-text text-transparent">Analytics</h3>
+          <p className="text-gray-600 dark:text-gray-400 text-lg font-medium">Trends and top performers</p>
+          <div className="w-16 h-1 bg-gradient-to-r from-red-500 to-gray-500 rounded-full mt-2"></div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="rounded-2xl border border-slate-200/60 p-4 bg-white">
-          <h4 className="text-sm font-semibold text-slate-700 mb-2">Daily Approved Cash-Ins</h4>
+        <div className="rounded-3xl border-2 border-gray-200/60 dark:border-gray-800/60 p-6 bg-white dark:bg-black shadow-2xl shadow-gray-200/20 dark:shadow-black/40 hover:shadow-2xl hover:shadow-gray-300/30 dark:hover:shadow-black/60 transition-all duration-500 hover:-translate-y-1 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <h4 className="text-lg font-bold text-black dark:text-white mb-4 relative z-10">Daily Approved Cash-Ins</h4>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={dailyCashInData} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
@@ -68,14 +73,15 @@ const AnalyticsSection: FC<AnalyticsSectionProps> = ({ transactions }) => {
                 <YAxis tickFormatter={(v) => `₱${v}`} stroke="#64748b" />
                 <Tooltip formatter={(v: any) => [`₱${v}`, 'Amount']} />
                 <Legend />
-                <Line type="monotone" dataKey="amount" name="Cash-In Amount" stroke="#6366f1" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="amount" name="Cash-In Amount" stroke="#dc2626" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200/60 p-4 bg-white">
-          <h4 className="text-sm font-semibold text-slate-700 mb-2">Top Referrers</h4>
+        <div className="rounded-3xl border-2 border-gray-200/60 dark:border-gray-800/60 p-6 bg-white dark:bg-black shadow-2xl shadow-gray-200/20 dark:shadow-black/40 hover:shadow-3xl hover:shadow-gray-300/30 dark:hover:shadow-black/60 transition-all duration-500 hover:-translate-y-1 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <h4 className="text-lg font-bold text-black dark:text-white mb-4 relative z-10">Top Referrers</h4>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={topReferrersData} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
@@ -84,7 +90,7 @@ const AnalyticsSection: FC<AnalyticsSectionProps> = ({ transactions }) => {
                 <YAxis tickFormatter={(v) => `₱${v}`} stroke="#64748b" />
                 <Tooltip formatter={(v: any) => [`₱${v}`, 'Amount']} />
                 <Legend />
-                <Bar dataKey="amount" name="Referral Amount" fill="#0ea5e9" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="amount" name="Referral Amount" fill="#dc2626" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

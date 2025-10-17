@@ -13,14 +13,12 @@ interface SummaryCardsProps {
   totalBalance: number;
   approvedThisMonth: number;
   pendingRequests: number;
-  topReferrer: { referral_code: string; total_amount: number } | null;
 }
 
 const SummaryCards: FC<SummaryCardsProps> = ({
   totalBalance,
   approvedThisMonth,
-  pendingRequests,
-  topReferrer
+  pendingRequests
 }) => {
   // Format currency in Philippine Peso
   const formatCurrency = (amountCents: number) => {
@@ -48,12 +46,12 @@ const SummaryCards: FC<SummaryCardsProps> = ({
     {
       title: "Total Wallet Balance",
       value: formatCurrency(totalBalance),
-      change: "+12.5%",
+      change: "+15.3%",
       changeType: "increase",
       icon: BanknotesIcon,
-      gradient: "from-blue-500 to-cyan-600",
-      bgGradient: "from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20",
-      iconBg: "from-blue-500 to-cyan-600",
+      gradient: "from-red-500 to-red-600",
+      bgGradient: "from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20",
+      iconBg: "from-red-500 to-red-600",
       description: "From all approved transactions"
     },
     {
@@ -62,9 +60,9 @@ const SummaryCards: FC<SummaryCardsProps> = ({
       change: "+8.2%",
       changeType: "increase",
       icon: ArrowTrendingUpIcon,
-      gradient: "from-emerald-500 to-green-600",
-      bgGradient: "from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20",
-      iconBg: "from-emerald-500 to-green-600",
+      gradient: "from-gray-700 to-black",
+      bgGradient: "from-gray-50 to-gray-100 dark:from-gray-900/20 dark:to-black/20",
+      iconBg: "from-gray-700 to-black",
       description: "Total approved this month"
     },
     {
@@ -73,26 +71,15 @@ const SummaryCards: FC<SummaryCardsProps> = ({
       change: "-2.1%",
       changeType: "decrease",
       icon: ClockIcon,
-      gradient: "from-amber-500 to-orange-500",
-      bgGradient: "from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20",
-      iconBg: "from-amber-500 to-orange-500",
+      gradient: "from-gray-500 to-gray-600",
+      bgGradient: "from-gray-50 to-gray-100 dark:from-gray-800/20 dark:to-gray-700/20",
+      iconBg: "from-gray-500 to-gray-600",
       description: "Awaiting approval"
-    },
-    {
-      title: "Top Referrer",
-      value: topReferrer ? topReferrer.referral_code : 'N/A',
-      change: topReferrer ? formatCurrency(topReferrer.total_amount) : '₱0.00',
-      changeType: "neutral",
-      icon: UserGroupIcon,
-      gradient: "from-purple-500 to-pink-600",
-      bgGradient: "from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20",
-      iconBg: "from-purple-500 to-pink-600",
-      description: topReferrer ? 'Total referral volume' : 'No referrals yet'
     }
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
       {cards.map((card, index) => (
         <motion.div
           key={card.title}
@@ -101,62 +88,69 @@ const SummaryCards: FC<SummaryCardsProps> = ({
           animate="visible"
           variants={cardVariants}
           whileHover={{ 
-            y: -5,
-            transition: { duration: 0.2 }
+            y: -8,
+            scale: 1.02,
+            transition: { duration: 0.3, ease: "easeOut" }
           }}
-          className={`relative overflow-hidden modern-card bg-gradient-to-br ${card.bgGradient} group cursor-pointer`}
+          whileTap={{ scale: 0.95 }}
+          className={`modern-card relative overflow-hidden bg-gradient-to-br ${card.bgGradient} group cursor-pointer border-l-4 border-l-red-500`}
         >
-          {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white dark:via-slate-700 to-transparent"></div>
+          {/* Enhanced Background Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white to-transparent dark:via-gray-800"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-red-500/10 to-transparent rounded-full blur-2xl"></div>
           </div>
-          
-          {/* Content */}
-          <div className="relative z-10 p-6">
-            {/* Header */}
-            <div className="flex items-start justify-between mb-4">
-              <div className={`p-3 rounded-2xl bg-gradient-to-br ${card.iconBg} shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
-                <card.icon className="h-6 w-6 text-white" />
+
+          {/* Animated background glow */}
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-gray-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+          <div className="relative z-10 p-8">
+            {/* Enhanced Icon and Title Row */}
+            <div className="flex items-center justify-between mb-6">
+              <div className={`p-4 rounded-3xl bg-gradient-to-br ${card.iconBg} shadow-2xl shadow-red-500/20 group-hover:shadow-red-500/30 transition-all duration-300 group-hover:scale-110`}>
+                <card.icon className="w-8 h-8 text-white" />
               </div>
-              
-              {/* Change Indicator */}
-              <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
-                card.changeType === 'increase' 
-                  ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' 
-                  : card.changeType === 'decrease'
-                  ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-              }`}>
-                {card.changeType === 'increase' && <ArrowUpIcon className="h-3 w-3" />}
-                {card.changeType === 'decrease' && <ArrowDownIcon className="h-3 w-3" />}
-                <span>{card.change}</span>
+              <div className="text-right">
+                <div className={`inline-flex items-center px-3 py-2 rounded-2xl text-sm font-bold shadow-lg ${
+                  card.changeType === 'increase' 
+                    ? 'bg-white text-green-600 dark:bg-gray-800 dark:text-green-400 shadow-green-500/20' 
+                    : card.changeType === 'decrease'
+                    ? 'bg-white text-red-600 dark:bg-gray-800 dark:text-red-400 shadow-red-500/20'
+                    : 'bg-white text-gray-600 dark:bg-gray-800 dark:text-gray-400 shadow-gray-500/20'
+                }`}>
+                  {card.changeType === 'increase' && <ArrowUpIcon className="w-4 h-4 mr-1" />}
+                  {card.changeType === 'decrease' && <ArrowDownIcon className="w-4 h-4 mr-1" />}
+                  {card.change}
+                </div>
               </div>
             </div>
 
-            {/* Title */}
-            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
-              {card.title}
-            </h3>
-
-            {/* Value */}
-            <div className="mb-3">
-              <p className={`text-2xl font-bold bg-gradient-to-r ${card.gradient} bg-clip-text text-transparent`}>
+            {/* Enhanced Value */}
+            <div className="mb-4">
+              <h3 className="text-4xl font-black text-black dark:text-white mb-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors duration-300">
                 {card.value}
+              </h3>
+              <p className="text-lg font-bold text-gray-700 dark:text-gray-300">
+                {card.title}
               </p>
             </div>
 
-            {/* Description */}
-            <p className="text-xs text-slate-500 dark:text-slate-500">
+            {/* Enhanced Description */}
+            <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
               {card.description}
             </p>
 
-            {/* Hover Effect Line */}
-            <div className={`absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r ${card.gradient} group-hover:w-full transition-all duration-300`}></div>
+            {/* Progress bar decoration */}
+            <div className="mt-4 w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className={`h-full bg-gradient-to-r ${card.gradient} rounded-full transform origin-left group-hover:scale-x-100 scale-x-75 transition-transform duration-500`}></div>
+            </div>
           </div>
 
+          {/* Hover Effect Line */}
+          <div className={`absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r ${card.gradient} group-hover:w-full transition-all duration-300`}></div>
+
           {/* Floating Elements */}
-          <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-white/10 dark:from-slate-700/10 to-transparent rounded-full blur-xl group-hover:scale-110 transition-transform duration-500"></div>
-          <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-gradient-to-br from-white/5 dark:from-slate-700/5 to-transparent rounded-full blur-lg group-hover:scale-110 transition-transform duration-500"></div>
+          <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-white/10 dark:from-gray-700/10 to-transparent rounded-full blur-xl group-hover:scale-110 transition-transform duration-500"></div>
         </motion.div>
       ))}
     </div>

@@ -50,7 +50,7 @@ const TransactionTable: FC<TransactionTableProps> = ({ transactions, isLoading, 
   const activeApproved = 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-md shadow-emerald-500/25';
   const activePending = 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/25';
   const activeRejected = 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-md shadow-red-500/25';
-  const inactive = 'text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:shadow';
+  const inactive = 'text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-neutral-700 hover:shadow';
 
   const renderSegmented = (t: WalletTransaction) => {
     const isApproved = t.status === 'approved';
@@ -61,7 +61,7 @@ const TransactionTable: FC<TransactionTableProps> = ({ transactions, isLoading, 
     const canReject = !isRejected && !isOlderThan24h; // allow reject for approved or pending within 24h
 
     return (
-      <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-xl border border-slate-200 dark:border-slate-600">
+      <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-neutral-800 p-1 rounded-xl border border-slate-200 dark:border-neutral-700">
         <button
           className={`${baseSeg} ${isApproved ? activeApproved : inactive}`}
           onClick={() => !isApproved && onStatusUpdate(t.id, 'approved')}
@@ -98,10 +98,16 @@ const TransactionTable: FC<TransactionTableProps> = ({ transactions, isLoading, 
   };
 
   return (
-    <div className="table-modern">
-      <div className="flex items-center justify-between p-4">
-        <p className="text-sm text-slate-600 dark:text-slate-400">Showing {transactions.length} transactions</p>
-        <button onClick={handleExportCSV} className="btn-secondary flex items-center gap-2">
+    <div className="table-modern relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-500 via-gray-500 to-red-500"></div>
+      
+      <div className="flex items-center justify-between p-6 bg-gradient-to-r from-gray-50/50 to-white dark:from-gray-900/50 dark:to-black">
+        <div>
+          <p className="text-lg font-bold text-black dark:text-white">Transaction Overview</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Showing {transactions.length} transactions</p>
+        </div>
+        <button onClick={handleExportCSV} className="btn-secondary flex items-center gap-3 text-sm">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
           </svg>

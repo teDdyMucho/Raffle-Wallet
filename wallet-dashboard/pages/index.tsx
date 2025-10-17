@@ -15,7 +15,7 @@ import SummaryCards from '../components/SummaryCards';
 import TransactionTable from '../components/TransactionTable';
 import NewCashInModal from '../components/NewCashInModal';
 import AnalyticsSection from '../components/AnalyticsSection';
-import UserWalletCard from '../components/UserWalletCard';
+// Removed UserWalletCard
 
 export default function Home() {
   const [baseTransactions, setBaseTransactions] = useState<WalletTransaction[]>([]);
@@ -171,17 +171,23 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen bg-white dark:bg-black">
       <Head>
-        <title>Wallet Dashboard - Modern Finance Management</title>
+        <title>Raffle Wallet Dashboard </title>
         <meta name="description" content="Advanced wallet dashboard for managing user transactions in real-time" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" href="/images/allen%20(1).png" />
       </Head>
 
-      {/* Background decorations */}
+      {/* Enhanced Background decorations */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-pink-400/20 dark:from-purple-600/10 dark:to-pink-600/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 dark:from-blue-600/10 dark:to-cyan-600/10 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-red-500/15 to-red-600/15 dark:from-red-900/10 dark:to-red-800/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-gray-400/15 to-gray-500/15 dark:from-gray-800/10 dark:to-gray-700/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-gradient-to-br from-red-400/5 to-gray-400/5 dark:from-red-900/5 dark:to-gray-800/5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '4s'}}></div>
+        
+        {/* Floating geometric shapes */}
+        <div className="absolute top-20 right-20 w-4 h-4 bg-red-500/20 dark:bg-red-400/20 rounded-full animate-bounce" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-32 right-32 w-6 h-6 bg-gray-400/20 dark:bg-gray-600/20 rotate-45 animate-bounce" style={{animationDelay: '3s'}}></div>
+        <div className="absolute top-1/3 left-20 w-3 h-3 bg-red-400/30 dark:bg-red-500/30 rounded-full animate-bounce" style={{animationDelay: '5s'}}></div>
       </div>
 
       <Header
@@ -192,17 +198,40 @@ export default function Home() {
       />
 
       <main className="relative z-10 container mx-auto px-6 py-8 space-y-8">
-        {/* Welcome Section */}
+        {/* Enhanced Welcome Section */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-8"
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-center mb-12 relative"
         >
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-purple-600 to-indigo-600 dark:from-slate-200 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent mb-2">
-            Welcome to Your Dashboard
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400 text-lg">Manage your wallet transactions with powerful insights and real-time updates</p>
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 via-transparent to-gray-500/5 dark:from-red-900/10 dark:via-transparent dark:to-gray-800/10 rounded-3xl blur-xl"></div>
+          <div className="relative z-10 py-12 px-8">
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-6xl md:text-7xl font-black text-black dark:text-white mb-6 leading-tight bg-gradient-to-r from-black via-red-600 to-black dark:from-white dark:via-red-400 dark:to-white bg-clip-text text-transparent"
+            >
+              Welcome to Your Dashboard
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-3xl mx-auto font-medium"
+            >
+              Manage your wallet transactions with powerful insights and real-time updates
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="flex justify-center"
+            >
+              <div className="w-24 h-1 bg-gradient-to-r from-red-500 to-gray-500 rounded-full"></div>
+            </motion.div>
+          </div>
         </motion.div>
 
         {/* Summary Cards */}
@@ -215,7 +244,6 @@ export default function Home() {
             totalBalance={totalBalance}
             approvedThisMonth={approvedThisMonth}
             pendingRequests={pendingRequests}
-            topReferrer={topReferrer}
           />
         </motion.div>
 
@@ -226,30 +254,25 @@ export default function Home() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="space-y-6"
         >
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200 mb-2">Transaction Management</h2>
-              <p className="text-slate-600 dark:text-slate-400">Monitor and approve user cash-in requests</p>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 p-8 bg-gradient-to-r from-gray-50/50 via-white to-gray-50/50 dark:from-gray-900/50 dark:via-black dark:to-gray-900/50 rounded-3xl border-2 border-gray-200 dark:border-gray-800 shadow-2xl shadow-gray-200/30 dark:shadow-black/50 relative overflow-hidden">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-red-500/10 to-transparent rounded-full blur-2xl"></div>
+            
+            <div className="relative z-10">
+              <h2 className="text-4xl font-black text-black dark:text-white mb-3 bg-gradient-to-r from-black via-red-600 to-black dark:from-white dark:via-red-400 dark:to-white bg-clip-text text-transparent">Transaction Management</h2>
+              <p className="text-gray-600 dark:text-gray-400 text-lg font-medium">Monitor and approve user cash-in requests</p>
+              <div className="w-20 h-1 bg-gradient-to-r from-red-500 to-gray-500 rounded-full mt-3"></div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4 relative z-10">
               <button
                 onClick={loadData}
-                className="btn-secondary flex items-center gap-2"
+                className="btn-secondary flex items-center gap-3 text-sm group"
                 title="Refresh data from Supabase"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:rotate-180 transition-transform duration-500" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M3 10a7 7 0 1112.452 4.391l1.658 1.658a1 1 0 01-1.414 1.414l-3.182-3.182a1 1 0 01-.293-.707V9a1 1 0 112 0v2.586A5 5 0 1010 5a1 1 0 110-2 7 7 0 00-7 7z" clipRule="evenodd" />
                 </svg>
-                Refresh
-              </button>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="btn-primary flex items-center gap-2 group"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-                New Cash-In Request
+                Refresh Data
               </button>
             </div>
           </div>
@@ -261,23 +284,13 @@ export default function Home() {
           />
         </motion.div>
 
-        {/* Analytics and User Card */}
+        {/* Analytics Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="grid grid-cols-1 xl:grid-cols-3 gap-8"
         >
-          <div className="xl:col-span-2">
-            <AnalyticsSection transactions={transactions} />
-          </div>
-          <div>
-            <UserWalletCard 
-              userId={currentUser.id}
-              userName={currentUser.name}
-              onCashIn={() => setIsModalOpen(true)}
-            />
-          </div>
+          <AnalyticsSection transactions={transactions} />
         </motion.div>
       </main>
 
