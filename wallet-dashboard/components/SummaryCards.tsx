@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants, easeOut } from 'framer-motion';
 import { 
   BanknotesIcon, 
   ArrowTrendingUpIcon, 
@@ -31,7 +31,7 @@ const SummaryCards: FC<SummaryCardsProps> = ({
     }).format(amountCents / 100);
   };
 
-  const cardVariants = {
+  const cardVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: (i: number) => ({
       opacity: 1,
@@ -39,7 +39,7 @@ const SummaryCards: FC<SummaryCardsProps> = ({
       transition: {
         delay: i * 0.1,
         duration: 0.5,
-        ease: "easeOut"
+        ease: easeOut
       }
     })
   };
