@@ -119,7 +119,7 @@ const TransactionTable: FC<TransactionTableProps> = ({ transactions, isLoading, 
         <table className="min-w-full">
           <thead className="table-header">
             <tr>
-              {['User ID','Amount (₱)','Method','Status','Referral Code','Date','Actions'].map(h => (
+              {['User','Amount (₱)','Method','Status','Referral Code','Date','Actions'].map(h => (
                 <th key={h} className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">{h}</th>
               ))}
             </tr>
@@ -137,7 +137,7 @@ const TransactionTable: FC<TransactionTableProps> = ({ transactions, isLoading, 
                     transition={{ duration: 0.2 }}
                     className="table-row"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800 dark:text-slate-200">{t.user_id || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800 dark:text-slate-200">{t.user_name || t.user_id || '-'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(t.amount_cents)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">{t.method || '-'}</td>
                     <td className="px-6 py-4 whitespace-nowrap"><span className={`badge ${getStatusBadgeClass(t.status)}`}>{statusText}</span></td>

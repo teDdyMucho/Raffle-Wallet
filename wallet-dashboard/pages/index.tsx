@@ -7,6 +7,7 @@ import {
   updateTransactionStatus,
   getTotalBalance,
   getTopReferrer,
+  fetchTransactionById,
   supabase,
   TABLE,
 } from '../utils/supabase';
@@ -87,13 +88,21 @@ export default function Home() {
   useEffect(() => {
     const channel = supabase
       .channel('realtime:user_wallet')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: TABLE }, (payload: any) => {
-        const row = payload.new as WalletTransaction;
-        setBaseTransactions((prev) => [row, ...prev]);
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: TABLE }, async (payload: any) => {
+        const id = (payload?.new as any)?.id as number | undefined;
+        if (!id) return;
+        const joined = await fetchTransactionById(id);
+        if (joined) {
+          setBaseTransactions((prev) => [joined, ...prev]);
+        }
       })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: TABLE }, (payload: any) => {
-        const row = payload.new as WalletTransaction;
-        setBaseTransactions((prev) => prev.map((t) => (t.id === row.id ? row : t)));
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: TABLE }, async (payload: any) => {
+        const id = (payload?.new as any)?.id as number | undefined;
+        if (!id) return;
+        const joined = await fetchTransactionById(id);
+        if (joined) {
+          setBaseTransactions((prev) => prev.map((t) => (t.id === joined.id ? joined : t)));
+        }
       })
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: TABLE }, (payload: any) => {
         const row = payload.old as WalletTransaction;
@@ -114,6 +123,7 @@ export default function Home() {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (t) =>
+          (t.user_name && t.user_name.toLowerCase().includes(term)) ||
           t.user_id.toLowerCase().includes(term) ||
           t.method.toLowerCase().includes(term) ||
           (t.referral_code && t.referral_code.toLowerCase().includes(term))

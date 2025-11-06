@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 export function exportTransactionsToCSV(transactions: WalletTransaction[], fileName: string = 'wallet-transactions'): void {
   // Define CSV headers
   const headers = [
-    'User ID',
+    'User',
     'Amount (₱)',
     'Method',
     'Status',
@@ -29,7 +29,7 @@ export function exportTransactionsToCSV(transactions: WalletTransaction[], fileN
     }
     
     return [
-      transaction.user_id,
+      transaction.user_name || transaction.user_id,
       amountPesos,
       transaction.method,
       transaction.status,

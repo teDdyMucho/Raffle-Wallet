@@ -20,11 +20,31 @@ export type WalletTransaction = {
   status: 'approved' | 'pending' | 'rejected';
   created_at: string;
   referral_code: string | null;
+  user_name?: string;
 };
 
 // ----- CSV helpers (fallback mode) -----
 function parseCsvLine(line: string): string[] {
   return line.split(',').map((s) => s?.trim() ?? '');
+}
+
+export async function fetchTransactionById(id: number): Promise<WalletTransaction | null> {
+  try {
+    const { data, error } = await supabase
+      .from('user_wallet_with_name')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) throw error;
+    const row: any = data as any;
+    return ({
+      ...row,
+      user_name: row?.user_name ?? null,
+    }) as WalletTransaction;
+  } catch (error) {
+    console.error('[Supabase] fetchTransactionById failed:', error);
+    return null;
+  }
 }
 
 async function fetchCsvText(): Promise<string> {
@@ -65,11 +85,16 @@ function csvToTransactions(csvText: string): WalletTransaction[] {
 export async function fetchTransactions(): Promise<WalletTransaction[]> {
   try {
     const { data, error } = await supabase
-      .from(TABLE)
+      .from('user_wallet_with_name')
       .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
-    return (data as WalletTransaction[]) || [];
+    const rows: any[] = (data as any[]) || [];
+    const mapped = rows.map((r) => ({
+      ...r,
+      user_name: r?.user_name ?? null,
+    }));
+    return mapped as WalletTransaction[];
   } catch (error) {
     console.error('[Supabase] fetchTransactions failed:', error);
     if (USE_CSV_FALLBACK) {
